@@ -532,8 +532,7 @@ const tools = [get_peers, get_top_companies_based_on_transaction_volume, get_com
 const llm_with_tools = await model.bindTools(tools);
 
 
-const queries = ["Give competitor of BBCA", "give top companies with higher transaction volume in 24 april 2024", "show the companies on banks sector", "give top bankscompanies by market capital","give top banks companies by growth", "give top banks companies by revenue", "give top banks companies by earnings","give 10 top companies by dividend yield","ive 10 top companies by total dividend","ive 10 top companies by revenue", "give 10 top companies by earnings","give top banks companies by price change"]
-
+// const queries = "Give competitor of BBCA"
 // const queries = ["give top companies with higher transaction volume in 24 april 2023"]
 
 // const queries = [simple_query, intermediate_query, complex_query]
@@ -590,13 +589,8 @@ async function generate_output(query) {
 
 // console.log(`Lenght of Query : ${queries.length}`)
 // let timeListForQuery = []
-
-queries.forEach(q => {
-  generate_output(q)
-  // timeListForQuery.push(timeComp)
-  // console.log(timeComp)
-});
-
+const queries = "Give competitor of BBCA"
+generate_output(queries)
 // var total = 0;
 // for(var i = 0; i < timeListForQuery.length; i++) {
 //     total += timeListForQuery[i];
