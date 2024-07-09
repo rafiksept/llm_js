@@ -20,6 +20,7 @@ const get_peers = new DynamicStructuredTool({
     ticker:z.string().length(4, "Stock ticker should only contain up to 4 alphabetic characters").describe("Stock ticker to search for")
   }),
   func: async({ticker}) => {
+    // console.log(ticker)
     const url =  `https://api.sectors.app/v1/company/report/${ticker}/?sections=peers`
     
     
@@ -35,7 +36,9 @@ const get_peers = new DynamicStructuredTool({
           } );
           const data = await response.json();
           // console.log(response.headers.Authorization)
+          // console.log(data)
           const peers = data.peers 
+          // console.log(peers)
           let output  = []
           peers.forEach(p => {
             const company = p.peers_info.companies 
@@ -43,6 +46,7 @@ const get_peers = new DynamicStructuredTool({
               let result = {}
               result.company_name = c.company_name
               result.symbol = c.symbol
+              output.push(result)
             });
           });
           return output;
