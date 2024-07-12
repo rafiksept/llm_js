@@ -1,4 +1,4 @@
-// import { ChatGroq } from "@langchain/groq";
+import { ChatGroq } from "@langchain/groq";
 import 'dotenv/config'
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
@@ -9,9 +9,8 @@ import { ChatOpenAI } from "@langchain/openai";
 var open_api_key = process.env.OPENAI_API_KEY; // Output: localhost
 var sectors_api_key = process.env.SECTORS_API_KEY; // Output: root
 
-const model = new ChatOpenAI( {model : "gpt-3.5-turbo", temperature : 0, apiKey:open_api_key
+const model = new ChatGroq( {model : "llama3-70b-8192", temperature : 0,  apiKey: "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"
 });
-
 
 const get_peers = new DynamicStructuredTool({
   name:"get_peers",
@@ -98,6 +97,8 @@ const get_top_companies_based_on_transaction_volume = new DynamicStructuredTool(
     }
   },
 })
+
+
 
 const get_top_m_cap_companies_by_subsector = new DynamicStructuredTool({
   name: "get_top_m_cap_companies_by_subsector",
@@ -267,7 +268,7 @@ const get_top_change_companies_by_subsector = new DynamicStructuredTool({
       const output = []
         top_change.forEach(c => {
           const result = {}
-          // result.company_name = c.company_name
+          result.company_name = c.company_name
           result.symbol = c.symbol
           output.push(result)
         });
@@ -465,17 +466,46 @@ const get_top_earnings_companies= new DynamicStructuredTool({
 
 // const categories = "elek"
 
+const categories = async () => {
+  const url = "https://api.sectors.app/v1/subindustries/";
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': sectors_api_key, // Replace with the correct token
+        'Content-Type': 'application/json', // Add other necessary headers
+      },
+    });
+
+    const data = await response.json();
+    return data.map(e => e["sub_industry"]); // Return the sub_industry names
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;  // Re-throw the error after logging it
+  }
+};
+
+// const subindustries = await categories();
+
 const get_companies_by_subsector_and_subindustries = new DynamicStructuredTool({
   name: "get_companies_by_subsector_and_subindustries",
   description: "Get companies based on subsector and subindustries",
 
   schema: z.object({
     sub_industry: z.string().describe("subindustry of listed companies")
-    }),  
+  }),
+
+  async initialize() {
+    const subindustries = await categories();
+    this.schema = z.object({
+      sub_industry: z.enum(subindustries).describe("subindustry of listed companies")
+    });
+  },
 
   func: async ({sub_industry}) => { 
-    console.log(sub_industry)
+    // console.log(sub_industry)
     const sub_industry_with_strip = sub_industry.toLowerCase().replace(" ", "-")
+    console.log(sub_industry_with_strip)
     // console.log("buzz")
     const url =  `https://api.sectors.app/v1/companies/?sub_industry=${sub_industry_with_strip}`
     // console.log(sub_sector.toLowerCase())
@@ -493,7 +523,7 @@ const get_companies_by_subsector_and_subindustries = new DynamicStructuredTool({
 
       // console.log(response.status)
       if (response.status == 400) {
-        const url =  `https://api.sectors.app/v1/companies/?sub_sector=${sub_sector.toLowerCase()}`
+        const url =  `https://api.sectors.app/v1/companies/?sub_sector=${sub_industry.toLowerCase()}`
     // console.log(sub_sector.toLowerCase())
     
         // Menggunakan fetch untuk mengambil data
@@ -593,7 +623,7 @@ async function generate_output(query) {
 
 // console.log(`Lenght of Query : ${queries.length}`)
 // let timeListForQuery = []
-const queries = "Give competitor of BBCA"
+const queries = "give companies on furnishing"
 generate_output(queries)
 // var total = 0;
 // for(var i = 0; i < timeListForQuery.length; i++) {
@@ -603,5 +633,5 @@ generate_output(queries)
 // var avg = total / timeListForQuery.length;
 // console.log(`Average of time computation : ${avg}`)
 
-
+// categories()
 
