@@ -1040,3 +1040,4 @@ async function generate(query: string) {
 }
 
 const result = await generate("top 10 companies in banking sorted by number of employees")
+console.log(result)
